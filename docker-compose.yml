@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: avito-moderation-client
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:3000/api}
+    restart: unless-stopped
+    networks:
+      - avito-network
+
+networks:
+  avito-network:
+    driver: bridge
