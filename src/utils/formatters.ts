@@ -80,13 +80,14 @@ const getDaysWord = (count: number): string => {
  * Get status label in Russian
  */
 export const getStatusLabel = (
-  status: 'pending' | 'approved' | 'rejected' | 'revision'
+  status: 'pending' | 'approved' | 'rejected' | 'revision' | 'draft'
 ): string => {
   const labels = {
     pending: 'На модерации',
     approved: 'Одобрено',
     rejected: 'Отклонено',
     revision: 'На доработку',
+    draft: 'На доработку',
   };
   return labels[status];
 };
@@ -100,19 +101,11 @@ export const getPriorityLabel = (priority: 'normal' | 'urgent'): string => {
 
 /**
  * Get category label in Russian
+ * Categories are already in Russian from the backend
  */
-export const getCategoryLabel = (
-  category: 'electronics' | 'clothing' | 'furniture' | 'vehicles' | 'real-estate' | 'other'
-): string => {
-  const labels = {
-    electronics: 'Электроника',
-    clothing: 'Одежда',
-    furniture: 'Мебель',
-    vehicles: 'Транспорт',
-    'real-estate': 'Недвижимость',
-    other: 'Другое',
-  };
-  return labels[category];
+export const getCategoryLabel = (category: string): string => {
+  // Categories are already in Russian, just return them
+  return category;
 };
 
 /**

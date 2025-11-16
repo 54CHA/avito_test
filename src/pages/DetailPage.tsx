@@ -25,13 +25,14 @@ import { ErrorDisplay } from '../components/common/ErrorDisplay';
 import type { Advertisement, RejectionReason } from '../types';
 import { formatPrice, formatDate, getCategoryLabel } from '../utils/formatters';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { generateMockAdvertisement, generateMockModerationHistory } from '../utils/mockData';
+import { getAdvertisementById, submitModerationDecision } from '../services/api';
 
 export const DetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [advertisement, setAdvertisement] = useState<Advertisement | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,18 +40,22 @@ export const DetailPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
 
         if (!id) {
           throw new Error('ID не указан');
         }
 
-        const mockAd = generateMockAdvertisement(parseInt(id));
-        const mockHistory = generateMockModerationHistory(id);
-        setAdvertisement({ ...mockAd, moderationHistory: mockHistory });
-      } catch (err) {
+        const adData = await getAdvertisementById(id);
+        setAdvertisement(adData);
+        setInitialLoad(false);
+      } catch (err: any) {
+        // Ignore canceled requests
+        if (err?.code === 'ERR_CANCELED') {
+          return;
+        }
+        console.error('API Error:', err);
         setError('Не удалось загрузить объявление');
+        setInitialLoad(false);
       } finally {
         setLoading(false);
       }
@@ -59,19 +64,57 @@ export const DetailPage: React.FC = () => {
     loadAdvertisement();
   }, [id]);
 
-  const handleApprove = () => {
-    console.log('Approved:', id);
-    // In production: API call to approve
+  const handleApprove = async () => {
+    if (!id) return;
+
+    try {
+      await submitModerationDecision(id, { action: 'approve' });
+      // Reload advertisement to see updated status
+      const adData = await getAdvertisementById(id);
+      setAdvertisement(adData);
+      console.log('Approved:', id);
+    } catch (err) {
+      console.error('Failed to approve:', err);
+      alert('Не удалось одобрить объявление');
+    }
   };
 
-  const handleReject = (reason: RejectionReason, comment?: string) => {
-    console.log('Rejected:', id, reason, comment);
-    // In production: API call to reject
+  const handleReject = async (reason: RejectionReason, comment?: string) => {
+    if (!id) return;
+
+    try {
+      await submitModerationDecision(id, {
+        action: 'reject',
+        reason,
+        comment
+      });
+      // Reload advertisement to see updated status
+      const adData = await getAdvertisementById(id);
+      setAdvertisement(adData);
+      console.log('Rejected:', id, reason, comment);
+    } catch (err) {
+      console.error('Failed to reject:', err);
+      alert('Не удалось отклонить объявление');
+    }
   };
 
-  const handleRevision = () => {
-    console.log('Revision:', id);
-    // In production: API call to request revision
+  const handleRevision = async (comment: string) => {
+    if (!id) return;
+
+    try {
+      await submitModerationDecision(id, {
+        action: 'revision',
+        reason: 'Требуются изменения' as any, // Backend expects reason field
+        comment: comment
+      });
+      // Reload advertisement to see updated status
+      const adData = await getAdvertisementById(id);
+      setAdvertisement(adData);
+      console.log('Revision:', id, comment);
+    } catch (err) {
+      console.error('Failed to request revision:', err);
+      alert('Не удалось запросить доработку');
+    }
   };
 
   const handleBack = () => {
@@ -103,12 +146,12 @@ export const DetailPage: React.FC = () => {
     !!advertisement
   );
 
-  if (loading) {
-    return <LoadingSpinner message="Загрузка объявления..." />;
+  if (error) {
+    return <ErrorDisplay message={error} onRetry={handleBack} />;
   }
 
-  if (error || !advertisement) {
-    return <ErrorDisplay message={error || 'Объявление не найдено'} onRetry={handleBack} />;
+  if (!advertisement) {
+    return <LoadingSpinner message="Загрузка объявления..." />;
   }
 
   return (

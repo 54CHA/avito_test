@@ -22,12 +22,13 @@ import { MetricCard } from '../components/stats/MetricCard';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { ErrorDisplay } from '../components/common/ErrorDisplay';
 import type { Statistics } from '../types';
-import { generateMockStatistics } from '../utils/mockData';
+import { getStatistics } from '../services/api';
 import { getCategoryLabel } from '../utils/formatters';
 
 export const StatsPage: React.FC = () => {
   const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<string>('week');
 
@@ -36,12 +37,17 @@ export const StatsPage: React.FC = () => {
       try {
         setLoading(true);
         setError(null);
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const mockStats = generateMockStatistics();
-        setStatistics(mockStats);
-      } catch (err) {
+        const stats = await getStatistics(dateRange);
+        setStatistics(stats);
+        setInitialLoad(false);
+      } catch (err: any) {
+        // Ignore canceled requests
+        if (err?.code === 'ERR_CANCELED') {
+          return;
+        }
+        console.error('API Error:', err);
         setError('Не удалось загрузить статистику');
+        setInitialLoad(false);
       } finally {
         setLoading(false);
       }
@@ -54,17 +60,18 @@ export const StatsPage: React.FC = () => {
     setDateRange(event.target.value);
   };
 
-  if (loading) {
-    return <LoadingSpinner message="Загрузка статистики..." />;
-  }
-
-  if (error || !statistics) {
+  if (error) {
     return (
       <ErrorDisplay
-        message={error || 'Не удалось загрузить статистику'}
+        message={error}
         onRetry={() => window.location.reload()}
       />
     );
+  }
+
+  // Guard against incomplete data - show loader if data not ready
+  if (!statistics || !statistics.activityByDay || !statistics.reviewedByCategory || !statistics.decisionDistribution) {
+    return <LoadingSpinner message="Загрузка статистики..." />;
   }
 
   const totalReviewed =
@@ -103,7 +110,7 @@ export const StatsPage: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Процент одобрения"
-            value={`${statistics.approvalPercentage}%`}
+            value={`${statistics.approvalPercentage.toFixed(2)}%`}
             icon={<CheckCircle fontSize="large" />}
             color="success.main"
             trend="up"
@@ -112,7 +119,7 @@ export const StatsPage: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <MetricCard
             title="Процент отклонения"
-            value={`${statistics.rejectionPercentage}%`}
+            value={`${statistics.rejectionPercentage.toFixed(2)}%`}
             icon={<Cancel fontSize="large" />}
             color="error.main"
           />
@@ -173,19 +180,19 @@ export const StatsPage: React.FC = () => {
                     data: [
                       {
                         id: 0,
-                        value: statistics.decisionDistribution.approved,
+                        value: parseFloat(statistics.decisionDistribution.approved.toFixed(2)),
                         label: 'Одобрено',
                         color: '#4caf50',
                       },
                       {
                         id: 1,
-                        value: statistics.decisionDistribution.rejected,
+                        value: parseFloat(statistics.decisionDistribution.rejected.toFixed(2)),
                         label: 'Отклонено',
                         color: '#f44336',
                       },
                       {
                         id: 2,
-                        value: statistics.decisionDistribution.revision,
+                        value: parseFloat(statistics.decisionDistribution.revision.toFixed(2)),
                         label: 'На доработку',
                         color: '#ff9800',
                       },

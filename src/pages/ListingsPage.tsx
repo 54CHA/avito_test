@@ -6,14 +6,16 @@ import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { ErrorDisplay } from '../components/common/ErrorDisplay';
 import type { Advertisement, ListingFilters, PaginationParams } from '../types';
 import { useDebounce } from '../hooks/useDebounce';
-import { generateMockAdvertisements } from '../utils/mockData';
+import { getAdvertisements } from '../services/api';
 
 const ITEMS_PER_PAGE = 10;
 
 export const ListingsPage: React.FC = () => {
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
-  const [filteredAds, setFilteredAds] = useState<Advertisement[]>([]);
+  const [totalAds, setTotalAds] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ListingFilters>({
     sortBy: 'date',
@@ -26,76 +28,45 @@ export const ListingsPage: React.FC = () => {
 
   const debouncedSearch = useDebounce(filters.search, 300);
 
-  // Load mock data (replace with API call in production)
+  // Load data from API
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
         setError(null);
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const mockData = generateMockAdvertisements(100);
-        setAdvertisements(mockData);
-      } catch (err) {
+
+        const response = await getAdvertisements(
+          {
+            ...filters,
+            search: debouncedSearch,
+          },
+          pagination
+        );
+
+        setAdvertisements(response.data);
+        setTotalAds(response.total);
+        setTotalPages(response.totalPages);
+        setInitialLoad(false);
+      } catch (err: any) {
+        // Ignore canceled requests (they're superseded by new requests)
+        if (err?.code === 'ERR_CANCELED') {
+          return;
+        }
+        console.error('API Error:', err);
         setError('Не удалось загрузить данные');
+        setInitialLoad(false);
       } finally {
         setLoading(false);
       }
     };
 
     loadData();
-  }, []);
+  }, [filters, debouncedSearch, pagination]);
 
-  // Apply filters and sorting
-  useEffect(() => {
-    let filtered = [...advertisements];
-
-    // Apply search filter
-    if (debouncedSearch) {
-      filtered = filtered.filter((ad) =>
-        ad.title.toLowerCase().includes(debouncedSearch.toLowerCase())
-      );
-    }
-
-    // Apply status filter
-    if (filters.status && filters.status.length > 0) {
-      filtered = filtered.filter((ad) => filters.status!.includes(ad.status));
-    }
-
-    // Apply category filter
-    if (filters.category && filters.category.length > 0) {
-      filtered = filtered.filter((ad) => filters.category!.includes(ad.category));
-    }
-
-    // Apply price filters
-    if (filters.priceMin !== undefined) {
-      filtered = filtered.filter((ad) => ad.price >= filters.priceMin!);
-    }
-    if (filters.priceMax !== undefined) {
-      filtered = filtered.filter((ad) => ad.price <= filters.priceMax!);
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let comparison = 0;
-
-      if (filters.sortBy === 'date') {
-        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      } else if (filters.sortBy === 'price') {
-        comparison = a.price - b.price;
-      } else if (filters.sortBy === 'priority') {
-        comparison = a.priority === 'urgent' ? -1 : 1;
-      }
-
-      return filters.sortOrder === 'asc' ? comparison : -comparison;
-    });
-
-    setFilteredAds(filtered);
-    setPagination({ ...pagination, page: 1 }); // Reset to first page when filters change
-  }, [advertisements, debouncedSearch, filters]);
 
   const handleFiltersChange = (newFilters: ListingFilters) => {
     setFilters(newFilters);
+    setPagination({ ...pagination, page: 1 }); // Reset to first page when filters change
   };
 
   const handleResetFilters = () => {
@@ -103,6 +74,7 @@ export const ListingsPage: React.FC = () => {
       sortBy: 'date',
       sortOrder: 'desc',
     });
+    setPagination({ ...pagination, page: 1 });
   };
 
   const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
@@ -110,18 +82,13 @@ export const ListingsPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (loading) {
-    return <LoadingSpinner message="Загрузка объявлений..." />;
-  }
-
   if (error) {
     return <ErrorDisplay message={error} onRetry={() => window.location.reload()} />;
   }
 
-  const totalPages = Math.ceil(filteredAds.length / ITEMS_PER_PAGE);
-  const startIndex = (pagination.page - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentPageAds = filteredAds.slice(startIndex, endIndex);
+  if (initialLoad && loading) {
+    return <LoadingSpinner message="Загрузка объявлений..." />;
+  }
 
   return (
     <Box>
@@ -137,11 +104,13 @@ export const ListingsPage: React.FC = () => {
 
       <Paper sx={{ p: 2, mb: 2 }}>
         <Typography variant="body1">
-          Найдено объявлений: <strong>{filteredAds.length}</strong>
+          Найдено объявлений: <strong>{totalAds}</strong>
         </Typography>
       </Paper>
 
-      {currentPageAds.length === 0 ? (
+      {loading ? (
+        <LoadingSpinner message="Загрузка..." />
+      ) : advertisements.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Typography variant="h6" color="text.secondary">
             Объявления не найдены
@@ -153,7 +122,7 @@ export const ListingsPage: React.FC = () => {
       ) : (
         <>
           <Grid container spacing={3} sx={{ mb: 4 }}>
-            {currentPageAds.map((ad) => (
+            {advertisements.map((ad) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={ad.id}>
                 <AdvertisementCard advertisement={ad} />
               </Grid>

@@ -41,6 +41,11 @@ api.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
+    // Ignore canceled requests (they're intentional)
+    if (error.code === 'ERR_CANCELED') {
+      return Promise.reject(error);
+    }
+
     // Handle different error types
     if (error.response) {
       // Server responded with error status
@@ -117,16 +122,38 @@ export const getAdvertisements = async (
     category: filters.category?.join(','),
   };
 
-  const response = await api.get<ApiResponse<PaginatedResponse<Advertisement>>>(
-    '/advertisements',
-    {
-      params,
-      signal: controller.signal,
-    }
-  );
+  const response = await api.get<{
+    ads: any[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+    };
+  }>('/ads', {
+    params,
+    signal: controller.signal,
+  });
 
   abortControllers.delete('advertisements');
-  return response.data.data!;
+
+  // Transform backend response to match frontend expectations
+  return {
+    data: response.data.ads.map(ad => ({
+      ...ad,
+      id: String(ad.id), // Convert ID to string
+      seller: {
+        id: String(ad.seller.id), // Convert ID to string
+        name: ad.seller.name,
+        rating: parseFloat(ad.seller.rating), // Convert string to number
+        listingsCount: ad.seller.totalAds, // Map totalAds to listingsCount
+        registrationDate: ad.seller.registeredAt, // Map registeredAt to registrationDate
+      }
+    })),
+    total: response.data.pagination.totalItems,
+    page: response.data.pagination.currentPage,
+    totalPages: response.data.pagination.totalPages,
+  };
 };
 
 /**
@@ -135,12 +162,25 @@ export const getAdvertisements = async (
 export const getAdvertisementById = async (id: string): Promise<Advertisement> => {
   const controller = getAbortController(`advertisement-${id}`);
 
-  const response = await api.get<ApiResponse<Advertisement>>(`/advertisements/${id}`, {
+  const response = await api.get<any>(`/ads/${id}`, {
     signal: controller.signal,
   });
 
   abortControllers.delete(`advertisement-${id}`);
-  return response.data.data!;
+
+  // Transform backend response to match frontend types
+  const ad = response.data;
+  return {
+    ...ad,
+    id: String(ad.id), // Convert ID to string
+    seller: {
+      id: String(ad.seller.id), // Convert ID to string
+      name: ad.seller.name,
+      rating: parseFloat(ad.seller.rating), // Convert string to number
+      listingsCount: ad.seller.totalAds, // Map totalAds to listingsCount
+      registrationDate: ad.seller.registeredAt, // Map registeredAt to registrationDate
+    }
+  };
 };
 
 /**
@@ -150,42 +190,104 @@ export const submitModerationDecision = async (
   id: string,
   decision: ModerationDecisionRequest
 ): Promise<void> => {
-  await api.post<ApiResponse<void>>(`/advertisements/${id}/moderate`, decision);
+  // Route to the correct endpoint based on action
+  let endpoint: string;
+  if (decision.action === 'approve') {
+    endpoint = `/ads/${id}/approve`;
+  } else if (decision.action === 'reject') {
+    endpoint = `/ads/${id}/reject`;
+  } else {
+    endpoint = `/ads/${id}/request-changes`;
+  }
+
+  await api.post<ApiResponse<void>>(endpoint, decision);
 };
 
 /**
  * Get moderation history for an advertisement
+ * Note: The backend includes moderation history in the ad object,
+ * so we fetch the ad and return its history
  */
 export const getModerationHistory = async (id: string): Promise<ModerationAction[]> => {
-  const response = await api.get<ApiResponse<ModerationAction[]>>(
-    `/advertisements/${id}/history`
-  );
-  return response.data.data!;
+  const ad = await getAdvertisementById(id);
+  return ad.moderationHistory || [];
 };
 
 /**
- * Get statistics
+ * Get statistics - combines data from multiple endpoints
  */
 export const getStatistics = async (dateRange?: string): Promise<Statistics> => {
-  const controller = getAbortController('statistics');
+  const params = dateRange ? { period: dateRange } : {};
 
-  const params = dateRange ? { range: dateRange } : {};
+  // Call all stats endpoints in parallel
+  const [summaryRes, activityRes, decisionsRes, categoriesRes] = await Promise.all([
+    api.get<{
+      totalReviewed: number;
+      totalReviewedToday: number;
+      totalReviewedThisWeek: number;
+      totalReviewedThisMonth: number;
+      approvedPercentage: number;
+      rejectedPercentage: number;
+      requestChangesPercentage: number;
+      averageReviewTime: number;
+    }>('/stats/summary', { params }),
+    api.get<Array<{
+      date: string;
+      approved: number;
+      rejected: number;
+      requestChanges: number;
+    }>>('/stats/chart/activity', { params }),
+    api.get<{
+      approved: number;
+      rejected: number;
+      requestChanges: number;
+    }>('/stats/chart/decisions', { params }),
+    api.get<Record<string, number>>('/stats/chart/categories', { params })
+  ]);
 
-  const response = await api.get<ApiResponse<Statistics>>('/statistics', {
-    params,
-    signal: controller.signal,
-  });
+  // Transform backend response to match frontend Statistics type
+  const summary = summaryRes.data;
+  const activity = activityRes.data;
+  const decisions = decisionsRes.data;
+  const categories = categoriesRes.data;
 
-  abortControllers.delete('statistics');
-  return response.data.data!;
+  // Backend returns totalReviewed based on the period requested
+  // Map it to the appropriate field based on the period
+  const period = dateRange || 'week';
+  const totalReviewedValue = summary.totalReviewed;
+
+  return {
+    totalReviewed: {
+      today: period === 'today' ? totalReviewedValue : summary.totalReviewedToday,
+      week: period === 'week' ? totalReviewedValue : 0,
+      month: period === 'month' ? totalReviewedValue : 0,
+    },
+    approvalPercentage: summary.approvedPercentage,
+    rejectionPercentage: summary.rejectedPercentage,
+    averageReviewTime: Math.round(summary.averageReviewTime / 60), // Convert seconds to minutes
+    activityByDay: activity.map(day => ({
+      date: day.date,
+      count: day.approved + day.rejected + day.requestChanges
+    })),
+    decisionDistribution: {
+      approved: decisions.approved,
+      rejected: decisions.rejected,
+      revision: decisions.requestChanges
+    },
+    reviewedByCategory: Object.entries(categories).map(([category, count]) => ({
+      category: category as Category,
+      count
+    }))
+  };
 };
 
 /**
  * Get available categories
+ * Note: Backend doesn't have a categories endpoint, returning predefined list
  */
 export const getCategories = async (): Promise<Category[]> => {
-  const response = await api.get<ApiResponse<Category[]>>('/categories');
-  return response.data.data!;
+  // Return predefined categories matching backend
+  return ['Электроника', 'Недвижимость', 'Транспорт', 'Работа', 'Услуги', 'Животные', 'Мода', 'Детское'];
 };
 
 export default api;

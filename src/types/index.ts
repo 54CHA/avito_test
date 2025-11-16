@@ -1,11 +1,11 @@
 // Advertisement status types
-export type AdvertisementStatus = 'pending' | 'approved' | 'rejected' | 'revision';
+export type AdvertisementStatus = 'pending' | 'approved' | 'rejected' | 'revision' | 'draft';
 
 // Priority types
 export type Priority = 'normal' | 'urgent';
 
-// Category types
-export type Category = 'electronics' | 'clothing' | 'furniture' | 'vehicles' | 'real-estate' | 'other';
+// Category types (matching backend Russian names)
+export type Category = 'Электроника' | 'Недвижимость' | 'Транспорт' | 'Работа' | 'Услуги' | 'Животные' | 'Мода' | 'Детское';
 
 // Rejection reasons
 export type RejectionReason =

@@ -1,387 +1,382 @@
-# Avito Advertisement Moderation System
+# Система модерации объявлений Авито
 
-A modern, production-ready web application for moderating advertisements on the Avito platform. Built with React 18, TypeScript, Material-UI, and Tailwind CSS.
+Современное веб-приложение для модерации объявлений на платформе Авито. Разработано с использованием React 18, TypeScript, Material-UI и интеграцией с готовым backend API.
 
-## 🚀 Features
+## 🚀 Возможности
 
-### Core Features
-- **📋 Listings List Page** (`/list`)
-  - Grid view of advertisement cards
-  - Multi-select status and category filters
-  - Price range filtering
-  - Real-time search by title
-  - Sorting by date, price, and priority
-  - Pagination (10 items per page)
-  - Total count display
+### Основные функции
+- **📋 Страница списка объявлений** (`/list`)
+  - Отображение карточек объявлений в виде сетки
+  - Фильтры по статусу и категории (множественный выбор)
+  - Фильтрация по диапазону цен
+  - Поиск в реальном времени по названию
+  - Сортировка по дате, цене и приоритету
+  - Пагинация (10 элементов на странице)
+  - Отображение общего количества объявлений
 
-- **🔍 Detail Page** (`/item/:id`)
-  - Image gallery with navigation
-  - Full product description and characteristics
-  - Seller information (name, rating, listings count, registration date)
-  - Complete moderation history timeline
-  - Moderation action panel (Approve/Reject/Revision)
-  - Rejection modal with predefined reasons
-  - Previous/Next navigation between items
+- **🔍 Страница детального просмотра** (`/item/:id`)
+  - Галерея изображений с навигацией
+  - Полное описание товара и характеристики
+  - Информация о продавце (имя, рейтинг, количество объявлений, дата регистрации)
+  - Полная история модерации
+  - Панель действий модератора (Одобрить/Отклонить/На доработку)
+  - Модальное окно отклонения с предустановленными причинами
+  - Модальное окно запроса доработки с комментарием
+  - Навигация Предыдущее/Следующее между объявлениями
 
-- **📊 Statistics Page** (`/stats`)
-  - Metric cards (total reviewed, approval %, rejection %, avg review time)
-  - Activity bar chart (last 7 days)
-  - Decision distribution pie chart
-  - Reviewed by category bar chart
-  - Date range filter (today/week/month)
+- **📊 Страница статистики** (`/stats`)
+  - Карточки метрик (всего проверено, % одобрения, % отклонения, среднее время проверки)
+  - Столбчатая диаграмма активности (последние 7 дней)
+  - Круговая диаграмма распределения решений
+  - Столбчатая диаграмма проверенных по категориям
+  - Фильтр по диапазону дат (сегодня/неделя/месяц)
 
-### Bonus Features
-- ⌨️ **Keyboard Shortcuts**
-  - `A` - Approve advertisement
-  - `D` - Reject advertisement
-  - `←` - Previous item
-  - `→` - Next item
-  - `/` - Focus search (disabled in input fields)
+### Дополнительные возможности
+- ⌨️ **Горячие клавиши**
+  - `A` - Одобрить объявление
+  - `D` - Отклонить объявление
+  - `←` - Предыдущее объявление
+  - `→` - Следующее объявление
 
-- 🌓 **Dark Theme Support**
-  - Theme toggle in header
-  - Preference saved to localStorage
-  - Smooth transitions
+- 🌓 **Поддержка тёмной темы**
+  - Переключатель темы в заголовке
+  - Сохранение предпочтений в localStorage
+  - Плавные переходы
 
-- 🎨 **Animations**
-  - Card hover effects
-  - Smooth page transitions
-  - Loading progress indicators
+- 🎨 **Анимации**
+  - Эффекты при наведении на карточки
+  - Плавные переходы между страницами
+  - Индикаторы загрузки
 
-- 📱 **Responsive Design**
-  - Mobile-first approach
-  - Tablet and desktop optimized
-  - Adaptive grid layouts
+- 📱 **Адаптивный дизайн**
+  - Mobile-first подход
+  - Оптимизация для планшетов и десктопов
+  - Адаптивные сетки
 
-## 🛠 Tech Stack
+## 🛠 Технологический стек
 
-### Required Technologies
-- **React 18.2** - Modern UI library
-- **TypeScript 5.3** - Type-safe development
-- **Vite 5.1** - Fast build tool and dev server
-- **React Router DOM 6.22** - Client-side routing
-- **Material-UI (MUI) 5.15** - Comprehensive UI component library
-- **Tailwind CSS 3.4** - Utility-first CSS framework
-- **Axios 1.6** - HTTP client with interceptors
-- **Docker** - Containerization
+### Обязательные технологии
+- **React 18.2** - Современная библиотека UI
+- **TypeScript 5.3** - Типобезопасная разработка
+- **Vite 5.1** - Быстрая сборка и dev-сервер
+- **React Router DOM 6.22** - Клиентская маршрутизация
+- **Material-UI (MUI) 5.15** - Комплексная библиотека UI компонентов
+- **Axios 1.6** - HTTP клиент с перехватчиками
 
-### Additional Libraries
-- **@mui/x-charts** - Professional charts for statistics
-- **@emotion/react & @emotion/styled** - CSS-in-JS (required by MUI)
+### Дополнительные библиотеки
+- **@mui/x-charts** - Профессиональные графики для статистики
+- **@emotion/react & @emotion/styled** - CSS-in-JS (требуется для MUI)
 
-### Development Tools
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **TypeScript Strict Mode** - Enhanced type checking
+### Инструменты разработки
+- **ESLint** - Проверка кода
+- **Prettier** - Форматирование кода
+- **TypeScript Strict Mode** - Расширенная проверка типов
 
-## 📦 Installation
+## 📦 Установка
 
-### Prerequisites
+### Требования
 - Node.js v20
-- npm or yarn
-- Docker (optional, for containerized deployment)
+- npm или yarn
 
-### Local Development Setup
+### Настройка локальной разработки
 
-1. **Clone the repository**
+1. **Клонировать репозиторий**
 ```bash
 git clone <repository-url>
 cd avito_test
 ```
 
-2. **Install dependencies**
+2. **Установить зависимости**
 ```bash
 npm install
 ```
 
-3. **Configure environment**
+3. **Настроить окружение**
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` file:
+Отредактировать файл `.env`:
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3001/api/v1
 ```
 
-4. **Start development server**
+> **Важно**: Порт должен совпадать с портом backend сервера (по умолчанию 3001)
+
+4. **Запустить сервер разработки**
 ```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173`
+Приложение будет доступно по адресу `http://localhost:5173`
 
-## 🐳 Docker Setup
+### Запуск Backend сервера
 
-### Build Docker Image
+Backend сервер должен быть запущен отдельно:
+
 ```bash
-docker build -t avito-moderation-client .
+cd tech-internship/Frontend-trainee-assignment-autumn-2025/tech-int3-server
+npm install
+npm run dev
 ```
 
-### Run Docker Container
-```bash
-docker run -p 5173:5173 \
-  -e VITE_API_URL=http://host.docker.internal:3000/api \
-  avito-moderation-client
-```
+Backend будет доступен на `http://localhost:3001`
 
-### Using Docker Compose
-```bash
-docker-compose up --build
-```
-
-To stop:
-```bash
-docker-compose down
-```
-
-## 🏗 Project Structure
+## 🏗 Структура проекта
 
 ```
 /
 ├── src/
 │   ├── components/
-│   │   ├── common/          # Reusable components
+│   │   ├── common/          # Переиспользуемые компоненты
 │   │   │   ├── ErrorDisplay.tsx
 │   │   │   ├── LoadingSpinner.tsx
 │   │   │   ├── PriorityBadge.tsx
 │   │   │   └── StatusBadge.tsx
-│   │   ├── detail/          # Detail page components
+│   │   ├── detail/          # Компоненты страницы детального просмотра
 │   │   │   ├── ImageGallery.tsx
 │   │   │   ├── ModerationActions.tsx
 │   │   │   ├── ModerationHistory.tsx
 │   │   │   ├── RejectionModal.tsx
+│   │   │   ├── RevisionModal.tsx
 │   │   │   └── SellerInfo.tsx
-│   │   ├── layout/          # Layout components
+│   │   ├── layout/          # Компоненты макета
 │   │   │   ├── Header.tsx
 │   │   │   └── Layout.tsx
-│   │   ├── listings/        # Listings page components
+│   │   ├── listings/        # Компоненты страницы списка
 │   │   │   ├── AdvertisementCard.tsx
 │   │   │   └── FiltersPanel.tsx
-│   │   └── stats/           # Statistics components
+│   │   └── stats/           # Компоненты статистики
 │   │       └── MetricCard.tsx
 │   ├── contexts/
-│   │   └── ThemeContext.tsx # Dark theme provider
+│   │   └── ThemeContext.tsx # Провайдер тёмной темы
 │   ├── hooks/
-│   │   ├── useDebounce.ts   # Debounce hook for search
+│   │   ├── useDebounce.ts   # Хук debounce для поиска
 │   │   └── useKeyboardShortcuts.ts
 │   ├── pages/
 │   │   ├── DetailPage.tsx
 │   │   ├── ListingsPage.tsx
 │   │   └── StatsPage.tsx
 │   ├── services/
-│   │   └── api.ts           # Axios instance & API calls
+│   │   └── api.ts           # Axios инстанс и API вызовы
 │   ├── types/
-│   │   └── index.ts         # TypeScript interfaces
+│   │   └── index.ts         # TypeScript интерфейсы
 │   ├── utils/
-│   │   ├── formatters.ts    # Format helpers
-│   │   └── mockData.ts      # Mock data generator
+│   │   ├── formatters.ts    # Вспомогательные функции форматирования
+│   │   └── mockData.ts      # Генератор mock данных (не используется)
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
-├── Dockerfile
-├── docker-compose.yml
-├── nginx.conf
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
-├── tailwind.config.js
 └── README.md
 ```
 
-## 📝 Available Scripts
+## 📝 Доступные команды
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run format` - Format code with Prettier
+- `npm run dev` - Запуск сервера разработки
+- `npm run build` - Сборка для продакшена
+- `npm run preview` - Предпросмотр production сборки
+- `npm run lint` - Запуск ESLint
+- `npm run format` - Форматирование кода с Prettier
 
-## 🔌 API Integration
+## 🔌 Интеграция с API
 
-The application is designed to connect to a separate backend server. Configure the API endpoint via the `VITE_API_URL` environment variable.
+Приложение подключается к отдельному backend серверу. API endpoint настраивается через переменную окружения `VITE_API_URL`.
 
-### Expected API Endpoints
+### Используемые API эндпоинты
 
 ```typescript
-GET    /advertisements          # Get all listings with filters
-GET    /advertisements/:id      # Get single listing
-POST   /advertisements/:id/moderate  # Submit moderation decision
-GET    /advertisements/:id/history   # Get moderation history
-GET    /statistics              # Get statistics
-GET    /categories              # Get available categories
+GET    /api/v1/ads                      # Получить все объявления с фильтрами
+GET    /api/v1/ads/:id                  # Получить одно объявление
+POST   /api/v1/ads/:id/approve          # Одобрить объявление
+POST   /api/v1/ads/:id/reject           # Отклонить объявление
+POST   /api/v1/ads/:id/request-changes  # Запросить доработку
+GET    /api/v1/stats/summary            # Получить общую статистику
+GET    /api/v1/stats/chart/activity     # Получить данные графика активности
+GET    /api/v1/stats/chart/decisions    # Получить данные графика решений
+GET    /api/v1/stats/chart/categories   # Получить данные по категориям
 ```
 
-### API Request/Response Examples
+### Примеры запросов/ответов API
 
-**Get Advertisements**
+**Получить объявления**
 ```typescript
-GET /advertisements?page=1&limit=10&status=pending&category=electronics
+GET /api/v1/ads?page=1&limit=10&status=pending&category=Электроника
 
-Response: {
-  success: true,
-  data: {
-    data: Advertisement[],
-    total: number,
-    page: number,
-    totalPages: number
+Ответ: {
+  ads: Advertisement[],
+  pagination: {
+    currentPage: number,
+    totalPages: number,
+    totalItems: number,
+    itemsPerPage: number
   }
 }
 ```
 
-**Submit Moderation Decision**
+**Отклонить объявление**
 ```typescript
-POST /advertisements/:id/moderate
+POST /api/v1/ads/:id/reject
 Body: {
-  action: "approve" | "reject" | "revision",
-  reason?: "prohibited-item" | "wrong-category" | ...,
+  reason: "Запрещенный товар" | "Неверная категория" | ...,
   comment?: string
 }
 ```
 
-## 🎨 Material-UI + Tailwind Integration
+**Запросить доработку**
+```typescript
+POST /api/v1/ads/:id/request-changes
+Body: {
+  reason: string,
+  comment: string
+}
+```
 
-This project uses both Material-UI and Tailwind CSS:
+### Трансформация данных
 
-- **Material-UI**: Used for complex interactive components (Cards, Modals, Charts, Buttons, etc.)
-- **Tailwind CSS**: Used for layout, spacing, and utility classes
+Frontend автоматически трансформирует данные backend для совместимости:
 
-### Configuration
-- Tailwind's `preflight` is disabled to prevent conflicts with MUI
-- `important: '#root'` ensures Tailwind utilities can override MUI styles when needed
-- Both systems work harmoniously without style conflicts
+**Backend → Frontend**
+```typescript
+// Backend отправляет:
+{
+  id: 22,                    // number
+  rating: "2.8",            // string
+  totalAds: 14,
+  registeredAt: "2025-..."
+}
 
-## 🧪 Mock Data
+// Frontend преобразует в:
+{
+  id: "22",                 // string
+  rating: 2.8,              // number
+  listingsCount: 14,
+  registrationDate: "2025-..."
+}
+```
 
-The application includes a comprehensive mock data generator for development and testing:
+## 🔑 Ключевые решения
 
-- **generateMockAdvertisements()** - Creates 100 sample advertisements
-- **generateMockModerationHistory()** - Creates moderation action history
-- **generateMockStatistics()** - Creates realistic statistics data
+### Выбор технологий
 
-To replace with real API calls, update the services in `src/services/api.ts`.
+1. **Vite вместо Create React App**
+   - Быстрый dev-сервер с HMR
+   - Лучшая производительность сборки
+   - Нативная поддержка ESM
 
-## 🔑 Key Design Decisions
+2. **Material-UI для компонентов**
+   - Production-ready компоненты
+   - Встроенная доступность
+   - Комплексная система тем
+   - Библиотека графиков (@mui/x-charts)
 
-### Technology Choices
+3. **TypeScript Strict Mode**
+   - Повышенная типобезопасность
+   - Лучшая поддержка IDE
+   - Меньше runtime ошибок
 
-1. **Vite over Create React App**
-   - Faster development server with HMR
-   - Better build performance
-   - Native ESM support
+4. **Axios вместо Fetch**
+   - Перехватчики запросов/ответов
+   - Автоматическая трансформация JSON
+   - Лучшая обработка ошибок
+   - Поддержка отмены запросов
 
-2. **Material-UI for Components**
-   - Production-ready components
-   - Accessibility built-in
-   - Comprehensive theming system
-   - Charts library (@mui/x-charts)
+### Архитектурные решения
 
-3. **Tailwind for Utilities**
-   - Rapid prototyping
-   - Consistent spacing/sizing
-   - Minimal custom CSS needed
+1. **Организация компонентов**
+   - Структура папок по функциям
+   - Переиспользуемые общие компоненты
+   - Четкое разделение ответственности
 
-4. **TypeScript Strict Mode**
-   - Enhanced type safety
-   - Better IDE support
-   - Fewer runtime errors
+2. **Управление состоянием**
+   - React хуки для локального состояния
+   - Context API для темы
+   - Внешняя библиотека состояния не требуется
 
-5. **Axios over Fetch**
-   - Request/response interceptors
-   - Automatic JSON transformation
-   - Better error handling
-   - Request cancellation support
+3. **Отмена запросов**
+   - AbortController при смене навигации
+   - Предотвращает утечки памяти
+   - Лучший UX при быстрой навигации
 
-### Architecture Decisions
+4. **Debounced поиск**
+   - Кастомная реализация хука
+   - Сокращает ненужные ре-рендеры
+   - Лучшая производительность
 
-1. **Component Organization**
-   - Feature-based folder structure
-   - Reusable common components
-   - Clear separation of concerns
+## ✅ Чек-лист функций
 
-2. **State Management**
-   - React hooks for local state
-   - Context API for theme
-   - No external state library needed (app complexity is moderate)
+### Основные функции
+- ✅ Список объявлений с видом сетки
+- ✅ Фильтры с множественным выбором (статус, категория)
+- ✅ Фильтр по диапазону цен
+- ✅ Функциональность поиска
+- ✅ Сортировка (дата, цена, приоритет)
+- ✅ Пагинация
+- ✅ Страница детального просмотра с галереей изображений
+- ✅ Отображение информации о продавце
+- ✅ Временная шкала истории модерации
+- ✅ Действия модерации (Одобрить/Отклонить/На доработку)
+- ✅ Модальное окно отклонения с причинами
+- ✅ Модальное окно запроса доработки
+- ✅ Страница статистики с метриками
+- ✅ Графики (столбчатые, круговые)
+- ✅ Навигация Предыдущее/Следующее
 
-3. **Request Cancellation**
-   - AbortController for navigation changes
-   - Prevents memory leaks
-   - Better UX during fast navigation
-
-4. **Debounced Search**
-   - Custom hook implementation
-   - Reduces unnecessary re-renders
-   - Better performance
-
-## ✅ Features Checklist
-
-### Core Features
-- ✅ Listings list with grid view
-- ✅ Multi-select filters (status, category)
-- ✅ Price range filter
-- ✅ Search functionality
-- ✅ Sorting (date, price, priority)
-- ✅ Pagination
-- ✅ Detail page with image gallery
-- ✅ Seller information display
-- ✅ Moderation history timeline
-- ✅ Moderation actions (Approve/Reject/Revision)
-- ✅ Rejection modal with reasons
-- ✅ Statistics page with metrics
-- ✅ Charts (Bar, Pie)
-- ✅ Previous/Next navigation
-
-### Bonus Features
-- ✅ Keyboard shortcuts
-- ✅ Dark theme toggle
-- ✅ Responsive design
-- ✅ Smooth animations
-- ✅ Loading states
-- ✅ Error handling
-- ✅ Docker containerization
-- ✅ TypeScript strict mode
+### Дополнительные функции
+- ✅ Горячие клавиши
+- ✅ Переключатель тёмной темы
+- ✅ Адаптивный дизайн
+- ✅ Плавные анимации
+- ✅ Состояния загрузки
+- ✅ Обработка ошибок
+- ✅ TypeScript strict режим
 - ✅ ESLint & Prettier
-- ✅ Request cancellation
+- ✅ Отмена запросов
+- ✅ Интеграция с реальным backend API
 
-## 🚧 Known Limitations
+## 🔧 Важные особенности реализации
 
-1. **Mock Data**: Currently using generated mock data. Replace with actual API calls in production.
-2. **Authentication**: Not implemented (assumes user is logged in).
-3. **Image Uploads**: Uses placeholder images.
-4. **Persistence**: Moderation actions are logged but not persisted (needs backend).
+### Работа с Backend API
 
-## 🔒 Security Considerations
+1. **Без CORS на backend**: Backend не имеет CORS middleware. Для разработки используйте браузерные расширения или запускайте на том же origin.
 
-- Input validation on all forms
-- XSS protection via React's built-in escaping
-- CSRF tokens should be added when connecting to real API
-- Environment variables for sensitive configuration
-- Security headers in nginx configuration
+2. **Трансформация данных**: Frontend автоматически преобразует форматы данных backend в соответствии с типами TypeScript.
 
-## 📱 Browser Support
+3. **Агрегация статистики**: Данные статистики собираются из 4 отдельных эндпоинтов backend и объединяются на frontend.
 
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile)
+4. **Обработка статусов**: Frontend поддерживает все статусы backend: `pending`, `approved`, `rejected`, `draft` (устанавливается при запросе доработки).
 
-## 🤝 Contributing
+### Состояния загрузки
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+Приложение корректно отображает состояния загрузки:
+- При первой загрузке показывается полноэкранный spinner
+- При последующих загрузках (фильтры, пагинация) показывается inline loader
+- Сообщения "не найдено" отображаются только после успешной загрузки с пустым результатом
 
-## 📄 License
+## 📱 Поддержка браузеров
 
-This project is created as a technical assignment for Avito.
+- Chrome/Edge (последние версии)
+- Firefox (последние версии)
+- Safari (последние версии)
+- Мобильные браузеры (iOS Safari, Chrome Mobile)
 
-## 👨‍💻 Author
+## 🚧 Известные ограничения
 
-Created as part of the Avito Frontend technical assignment.
+1. **CORS**: Backend не имеет CORS middleware. Требуется запуск на том же origin или использование proxy/расширений браузера.
+2. **Аутентификация**: Не реализована (предполагается, что пользователь залогинен).
+3. **Загрузка изображений**: Используются placeholder изображения.
+4. **Персистентность**: Действия модерации сохраняются на backend (в памяти, сбрасываются при перезапуске сервера).
+
+## 📄 Лицензия
+
+Проект создан в качестве тестового задания для Авито.
+
+## 👨‍💻 Автор
+
+Создано в рамках тестового задания Frontend Avito.
 
 ---
 
-**Note**: This is a frontend-only application. It requires a separate backend server to be fully functional. The application includes comprehensive mock data for development and demonstration purposes.
+**Примечание**: Это frontend приложение, работающее с отдельным backend сервером. Backend API предоставлен в папке `tech-internship/Frontend-trainee-assignment-autumn-2025/tech-int3-server/`.

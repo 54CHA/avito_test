@@ -16,6 +16,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'small'
       case 'rejected':
         return 'error';
       case 'revision':
+      case 'draft':
         return 'warning';
       default:
         return 'default';

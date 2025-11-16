@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Paper, Typography, Box, Button, Divider, Alert, Snackbar } from '@mui/material';
 import { CheckCircle, Cancel, Edit } from '@mui/icons-material';
 import { RejectionModal } from './RejectionModal';
+import { RevisionModal } from './RevisionModal';
 import type { RejectionReason } from '../../types';
 
 interface ModerationActionsProps {
   advertisementId: string;
   onApprove: () => void;
   onReject: (reason: RejectionReason, comment?: string) => void;
-  onRevision: () => void;
+  onRevision: (comment: string) => void;
 }
 
 export const ModerationActions: React.FC<ModerationActionsProps> = ({
@@ -17,6 +18,7 @@ export const ModerationActions: React.FC<ModerationActionsProps> = ({
   onRevision,
 }) => {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [revisionModalOpen, setRevisionModalOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
@@ -32,8 +34,8 @@ export const ModerationActions: React.FC<ModerationActionsProps> = ({
     setSnackbarOpen(true);
   };
 
-  const handleRevision = () => {
-    onRevision();
+  const handleRevision = (comment: string) => {
+    onRevision(comment);
     setSnackbarMessage('Объявление отправлено на доработку');
     setSnackbarOpen(true);
   };
@@ -74,7 +76,7 @@ export const ModerationActions: React.FC<ModerationActionsProps> = ({
             color="warning"
             size="large"
             startIcon={<Edit />}
-            onClick={handleRevision}
+            onClick={() => setRevisionModalOpen(true)}
             fullWidth
           >
             На доработку
@@ -93,6 +95,12 @@ export const ModerationActions: React.FC<ModerationActionsProps> = ({
         open={rejectModalOpen}
         onClose={() => setRejectModalOpen(false)}
         onSubmit={handleReject}
+      />
+
+      <RevisionModal
+        open={revisionModalOpen}
+        onClose={() => setRevisionModalOpen(false)}
+        onSubmit={handleRevision}
       />
 
       <Snackbar
